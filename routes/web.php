@@ -1,26 +1,33 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
-Route::get('/products', [ProductController::class, 'index']);
+use Illuminate\Support\Facades\Route;
 
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-
-use App\Http\Controllers\OrderController;
-
-
-
-Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-
+// Halaman awal
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::resource('products', ProductController::class);
 
-// Keranjang dummy route
-Route::get('/cart', function () {
-    return view('cart');
-})->name('cart.index');
+// Dashboard (hanya untuk user yang sudah login dan terverifikasi)
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+// Route untuk kategori dan produk
+Route::middleware('auth')->group(function () {
+    // Halaman profil
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // ✅ Halaman list kategori
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+
+    // ✅ Halaman list produk
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+});
+
+// Route auth (login, register, dll)
+require __DIR__.'/auth.php';
