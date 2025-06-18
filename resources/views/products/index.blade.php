@@ -1,34 +1,62 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Daftar Produk') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        @foreach ($products as $product)
-                            <div class="bg-gray-100 border rounded-lg shadow p-4">
-                                @if ($product->image)
-                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-48 object-cover rounded mb-2">
-                                @endif
-                                <h3 class="text-lg font-semibold">{{ $product->name }}</h3>
-                                <p class="text-sm text-gray-600">{{ $product->description }}</p>
-                                <p class="mt-1"><strong>Stok:</strong> {{ $product->stock }}</p>
-                                <p class="mt-1"><strong>Kategori:</strong> {{ $product->category->name }}</p>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <!-- PAGINATION -->
-                    <div class="mt-6">
-                        {{ $products->links() }}
-                    </div>
-                </div>
-            </div>
-        </div>
+@section('content')
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Daftar Produk</h2>
+        <a href="{{ route('products.create') }}" class="btn btn-primary">Tambah Produk</a>
     </div>
-</x-app-layout>
+
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nama</th>
+                <th>Deskripsi</th>
+                <th>Stok</th>
+                <th>Harga</th>
+                <th>Gambar</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($products as $product)
+                <tr>
+                    <td>{{ $product->id }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td>{{ Str::limit($product->description, 50) }}</td>
+                    <td>{{ $product->stock }}</td>
+                    <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
+                    <td>
+                        @if ($product->image)
+                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" width="80">
+                        @else
+                            <em>Tidak ada</em>
+                        @endif
+                    </td>
+                    <td>
+                        <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-warning">Edit</a>
+
+                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-sm btn-danger">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="7" class="text-center">Belum ada produk.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-center mt-4">
+        {{ $products->links() }}
+    </div>
+</div>
