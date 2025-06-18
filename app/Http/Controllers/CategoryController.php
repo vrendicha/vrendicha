@@ -8,7 +8,8 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return view('categories.index');
+        $categories = Category::withCount('products')->get(); // menghitung jumlah produk per kategori
+        return view('categories.index', compact('categories'));
     }
 }
 
