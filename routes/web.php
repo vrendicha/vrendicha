@@ -5,6 +5,13 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminController;
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    // Tambahkan route admin lain di sini
+});
+
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::resource('categories', CategoryController::class);
